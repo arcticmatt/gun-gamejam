@@ -20,7 +20,7 @@ function level:enter()
 end
 
 function level:update(dt)
-  -- TODO
+  entities:update(dt)
 end
 
 function level:draw()
