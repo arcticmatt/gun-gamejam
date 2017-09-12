@@ -15,7 +15,7 @@ end
 
 function Player:draw()
   -- TODO
-  love.graphics.rectangle("fill", self:get_rect())
+  love.graphics.rectangle("fill", self:getRect())
 end
 
 return Player

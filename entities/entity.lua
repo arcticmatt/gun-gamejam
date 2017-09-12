@@ -11,7 +11,7 @@ function Entity:init(world, x, y, w, h)
   self.h = h
 end
 
-function Entity:get_rect()
+function Entity:getRect()
   return self.x, self.y, self.w, self.h
 end
 

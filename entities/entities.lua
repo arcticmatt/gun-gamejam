@@ -1,7 +1,7 @@
 local entities = {
   active = true,
   world  = nil,
-  entity_list = {},
+  entityList = {},
 }
 
 function entities:enter(world)
@@ -10,8 +10,8 @@ function entities:enter(world)
 end
 
 function entities:add(entity)
-  table.insert(self.entity_list, entity)
-  self.world:add(entity, entity:get_rect())
+  table.insert(self.entityList, entity)
+  self.world:add(entity, entity:getRect())
 end
 
 function entities:add_many(entities)
@@ -22,17 +22,17 @@ end
 
 function entities:clear()
   self.world = nil
-  self.entity_list = {}
+  self.entityList = {}
 end
 
 function entities:draw()
-  for i, e in ipairs(self.entity_list) do
+  for i, e in ipairs(self.entityList) do
     e:draw(i)
   end
 end
 
 function entities:update(dt)
-  for i, e in ipairs(self.entity_list) do
+  for i, e in ipairs(self.entityList) do
     e:update(dt, i)
   end
 end
