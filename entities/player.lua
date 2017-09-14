@@ -1,49 +1,46 @@
 local Class  = require("libs.hump.class")
 local Entity = require("entities.Entity")
+vector = require("libs.hump.vector")
 
 local Player = Class{
   __includes = Entity -- Player class inherits our Entity class
 }
 
-local directions = { up = "up", down = "down", left = "left", right = "right", still = "still" }
+local directions = { up = "up", down = "down", left = "left", right = "right" }
+
 
 function Player:init(world, x, y, w, h)
   Entity.init(self, world, x, y, w, h)
-  self.direction = directions.still
+  -- The distance the player moves in its direction per second
+  self.baseVelocity = 300
+  -- Represents the current keyboard input in terms of (x, y) movement
+  self.v = vector(0, 0) 
 end
 
 function Player:update(dt)
-  self:setDirection()
+  -- Get inputs and calculates velocity trimmed to self.baseVelocity * dt
+  self:getInputs()
+  self.v = self.v * self.baseVelocity * dt
+  self.v:trimInplace(self.baseVelocity * dt)
 
   -- TODO: no boundaries
-  if self:isDir(directions.up) then
-    self.y = self.y - 5
-  elseif self:isDir(directions.down) then
-    self.y = self.y + 5
-  elseif self:isDir(directions.left) then
-    self.x = self.x - 5
-  elseif self:isDir(directions.right) then
-    self.x = self.x + 5
-  end
-
-  self.x, self.y = self.world:move(self, self.x, self.y)
+  local cols, len
+  self.x, self.y, cols, len = 
+    self.world:move(self, self.x + self.v.x, self.y + self.v.y)
 end
 
 function Player:draw()
   love.graphics.rectangle("fill", self:getRect())
 end
 
-function Player:setDirection()
-  if love.keyboard.isDown("up") then self.direction = directions.up; return end
-  if love.keyboard.isDown("down") then self.direction = directions.down; return end
-  if love.keyboard.isDown("left") then self.direction = directions.left; return end
-  if love.keyboard.isDown("right") then self.direction = directions.right; return end
-  self.direction = directions.still
-end
-
--- Helper function
-function Player:isDir(dir)
-  return self.direction == dir
+-- Populates the input array with the keys that the player is pressing down
+function Player:getInputs()
+  -- Reset velocity input vector
+  self.v = vector(0, 0)
+  if love.keyboard.isDown(directions.up) then self.v.y = self.v.y - 1; end
+  if love.keyboard.isDown(directions.down) then self.v.y = self.v.y + 1; end
+  if love.keyboard.isDown(directions.left) then self.v.x = self.v.x - 1; end
+  if love.keyboard.isDown(directions.right) then self.v.x = self.v.x + 1; end
 end
 
 return Player
