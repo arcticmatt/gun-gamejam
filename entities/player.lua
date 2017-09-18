@@ -9,24 +9,15 @@ local Player = Class{
 local directions = { up = "up", down = "down", left = "left", right = "right" }
 
 
-function Player:init(world, x, y, w, h)
-  Entity.init(self, world, x, y, w, h)
-  -- The distance the player moves in its direction per second
-  self.baseVelocity = 300
-  -- Represents the current keyboard input in terms of (x, y) movement
-  self.v = vector(0, 0) 
+function Player:init(x, y, w, h, id)
+  Entity.init(self, x, y, w, h, id)
+  -- All we need is input. Everything else on server
+  self.kb = vector(0, 0)
 end
 
 function Player:update(dt)
-  -- Get inputs and calculates velocity trimmed to self.baseVelocity * dt
   self:getInputs()
-  self.v = self.v * self.baseVelocity * dt
-  self.v:trimInplace(self.baseVelocity * dt)
-
-  -- TODO: no boundaries
-  local cols, len
-  self.x, self.y, cols, len = 
-    self.world:move(self, self.x + self.v.x, self.y + self.v.y)
+  -- TODO: send self.kb to server
 end
 
 function Player:draw()
@@ -36,11 +27,13 @@ end
 -- Populates the input array with the keys that the player is pressing down
 function Player:getInputs()
   -- Reset velocity input vector
-  self.v = vector(0, 0)
-  if love.keyboard.isDown(directions.up) then self.v.y = self.v.y - 1; end
-  if love.keyboard.isDown(directions.down) then self.v.y = self.v.y + 1; end
-  if love.keyboard.isDown(directions.left) then self.v.x = self.v.x - 1; end
-  if love.keyboard.isDown(directions.right) then self.v.x = self.v.x + 1; end
+  self.kb = vector(0, 0)
+  if love.keyboard.isDown(directions.up) then self.kb.y = self.kb.y - 1; end
+  if love.keyboard.isDown(directions.down) then self.kb.y = self.kb.y + 1; end
+  if love.keyboard.isDown(directions.left) then self.kb.x = self.kb.x - 1; end
+  if love.keyboard.isDown(directions.right) then self.kb.x = self.kb.x + 1; end
+
+  return self.kb
 end
 
 return Player

@@ -3,12 +3,12 @@ local Class = require("libs.hump.class")
 local Entity = Class{}
 
 -- Superclass of all entities
-function Entity:init(world, x, y, w, h)
-  self.world = world
+function Entity:init(x, y, w, h, id)
   self.x = x
   self.y = y
   self.w = w
   self.h = h
+  self.id = id
 end
 
 function Entity:getRect()
@@ -22,5 +22,7 @@ end
 function Entity:update(dt)
   -- Do nothing by default
 end
+
+-- TODO: tostring
 
 return Entity
