@@ -26,12 +26,6 @@ function entities:draw()
   end
 end
 
-function entities:update_upd(dt)
-  for k, e in pairs(self.entityMap) do
-    e:update(dt, k)
-  end
-end
-
 function entities:update(ent_id, x, y)
   self.entityMap[ent_id]:update(x, y)
 end

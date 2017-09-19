@@ -8,6 +8,7 @@ local Player = require("entities.player")
 -- ===== Client stuff =====
 local socket = require "socket"
 
+-- TODO add config changing for this
 -- the address and port of the server
 local address, port = "localhost", 12345
 
@@ -20,6 +21,7 @@ local level = {}
 player = nil
 
 function level:enter()
+  print("Entering level")
   -- Client stuff
   udp = socket.udp()
   udp:settimeout(0)
@@ -70,11 +72,11 @@ function level:update(dt)
 
     if data then
       id, cmd, params = data:match("^(%S*) (%S*) (.*)")
-      if cmd == 'at' then
+      if cmd == 'move' then
         -- TODO: wrap this fucking eyesore
         local x, y = params:match("^(%-?[%d.e]*) (%-?[%d.e]*)$")
         if id == player.id then
-          print("at data... ", x, y)
+          print("move data... ", x, y)
           player.x, player.y = tonumber(x), tonumber(y)
         else
           entities:get_entity(id).x, entities:get_entity(id).y = tonumber(x), tonumber(y)
