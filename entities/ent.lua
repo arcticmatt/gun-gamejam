@@ -1,9 +1,9 @@
 local Class = require("libs.hump.class")
 
-local Entity = Class{}
+local Ent = Class{}
 
 -- Superclass of all entities
-function Entity:init(x, y, w, h, id)
+function Ent:init(x, y, w, h, id)
   self.x = x
   self.y = y
   self.w = w
@@ -11,18 +11,18 @@ function Entity:init(x, y, w, h, id)
   self.id = id
 end
 
-function Entity:getRect()
+function Ent:getRect()
   return self.x, self.y, self.w, self.h
 end
 
-function Entity:draw()
+function Ent:draw()
   -- Do nothing by default
 end
 
-function Entity:update(dt)
+function Ent:update(dt)
   -- Do nothing by default
 end
 
 -- TODO: tostring
 
-return Entity
+return Ent

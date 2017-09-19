@@ -1,7 +1,7 @@
 local bump      = require("libs.bump.bump")
 local Gamestate = require("libs.hump.gamestate")
 -- Server gives us this
-local entities  = require("entities.entities")
+local ents  = require("entities.ents")
 -- ===== Entities =====
 local Player = require("entities.player")
 
@@ -34,7 +34,7 @@ function level:enter()
   -- t is just a variable we use to help us with the update rate in love.update.
   t = 0 -- (re)set t to 0
 
-  entities:clear()
+  ents:clear()
 end
 
 function level:update(dt)
@@ -79,7 +79,7 @@ function level:update(dt)
           print("move data... ", x, y)
           player.x, player.y = tonumber(x), tonumber(y)
         else
-          entities:get_entity(id).x, entities:get_entity(id).y = tonumber(x), tonumber(y)
+          ents:get_entity(id).x, ents:get_entity(id).y = tonumber(x), tonumber(y)
         end
       else
         print("unrecognised command:", cmd)
@@ -89,7 +89,7 @@ function level:update(dt)
     end
 	until not data
 
-  -- TODO: update entities
+  -- TODO: update ents
 end
 
 function level:draw()
@@ -97,7 +97,7 @@ function level:draw()
     player:draw()
   end
 
-  entities:draw()
+  ents:draw()
 end
 
 return level
