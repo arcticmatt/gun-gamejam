@@ -6,11 +6,11 @@ local ents  = require("entities.ents")
 local Player = require("entities.player")
 
 -- ===== Client stuff =====
-local socket = require "socket"
+local socket = require("socket")
 
 -- TODO add config changing for this
 -- the address and port of the server
-local address, port = "localhost", 12345
+local address, port = "225.0.0.37", 12345
 
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
 
@@ -23,13 +23,14 @@ player = nil
 function level:enter()
   print("Entering level")
   -- Client stuff
-  udp = socket.udp()
-  udp:settimeout(0)
-  udp:setpeername(address, port)
+  udp = assert(socket.udp())
+  print(assert(udp:setoption("reuseport", true)))
+  print(assert(udp:setsockname("*", port)))
+  print(assert(udp:setoption("ip-add-membership", {multiaddr = group, interface = "*"})))
   math.randomseed(os.time())
   -- TODO: don't hardcode
   local dg = string.format("%d %s $", 0, 'spawn')
-  udp:send(dg) -- the magic line in question.
+  -- udp:sendto(dg, address, port) -- the magic line in question.
 
   -- t is just a variable we use to help us with the update rate in love.update.
   t = 0 -- (re)set t to 0
@@ -38,6 +39,8 @@ function level:enter()
 end
 
 function level:update(dt)
+    data = udp:receivefrom()
+  print(data)
   if not player then
     data, msg = udp:receive()
 
@@ -68,7 +71,9 @@ function level:update(dt)
 	end
 
   repeat
-    data, msg = udp:receive()
+    print("hi")
+    data = udp:receive()
+    print(data)
 
     if data then
       id, cmd, params = data:match("^(%S*) (%S*) (.*)")
