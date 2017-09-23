@@ -10,7 +10,7 @@ local socket = require("socket")
 
 -- TODO add config changing for this
 -- the address and port of the server
-local address, port = "225.0.0.37", 12345
+local address, port = "localhost", 12345
 
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
 
@@ -22,28 +22,30 @@ player = nil
 
 function level:enter()
   print("Entering level")
-  -- Client stuff
+  -- Setting up networking
   udp = assert(socket.udp())
-  print(assert(udp:setoption("reuseport", true)))
-  print(assert(udp:setsockname("*", port)))
-  print(assert(udp:setoption("ip-add-membership", {multiaddr = group, interface = "*"})))
+  udp:settimeout(0)
+  udp:setpeername(address, port)
   math.randomseed(os.time())
+
   -- TODO: don't hardcode
+  -- Sending data
   local dg = string.format("%d %s $", 0, 'spawn')
-  -- udp:sendto(dg, address, port) -- the magic line in question.
+  udp:send(dg)
 
-  -- t is just a variable we use to help us with the update rate in love.update.
-  t = 0 -- (re)set t to 0
+  -- t is a variable we use to help us with the update rate in love.update.
+  t = 0
 
+  -- Clear all existing ents
   ents:clear()
 end
 
 function level:update(dt)
-    data = udp:receivefrom()
-  print(data)
   if not player then
+    print('spawning player...')
     data, msg = udp:receive()
 
+    print('data, msg = ', data, msg)
     if data then
       id, cmd, params = data:match("^(%S*) (%S*) (.*)")
       if cmd == 'spawn' then
@@ -71,9 +73,7 @@ function level:update(dt)
 	end
 
   repeat
-    print("hi")
-    data = udp:receive()
-    print(data)
+    data, msg = udp:receive()
 
     if data then
       id, cmd, params = data:match("^(%S*) (%S*) (.*)")
