@@ -1,11 +1,9 @@
-local bump      = require("libs.bump.bump")
+local bump = require("libs.bump.bump")
 local Gamestate = require("libs.hump.gamestate")
--- Server gives us this
-local ents  = require("entities.ents")
--- ===== Entities =====
+local ents = require("entities.ents") -- from server
 local Player = require("entities.player")
-
--- ===== Client stuff =====
+local decoder = require("utils.decoder")
+local encoder = require("utils.encoder")
 local socket = require("socket")
 
 -- TODO add config changing for this
@@ -18,7 +16,7 @@ local t
 
 -- ===== Game stuff =====
 local level = {}
-player = nil
+local player = nil
 
 function level:enter()
   print("Entering level")
@@ -28,10 +26,8 @@ function level:enter()
   udp:setpeername(address, port)
   math.randomseed(os.time())
 
-  -- TODO: don't hardcode
-  -- Sending data
-  local dg = string.format("%d %s $", 0, 'spawn')
-  udp:send(dg)
+  player = nil
+  send_spawn()
 
   -- t is a variable we use to help us with the update rate in love.update.
   t = 0
@@ -41,33 +37,29 @@ function level:enter()
 end
 
 function level:update(dt)
+  -- Spawn player
   if not player then
-    print('spawning player...')
-    data, msg = udp:receive()
-
-    print('data, msg = ', data, msg)
-    if data then
-      id, cmd, params = data:match("^(%S*) (%S*) (.*)")
-      if cmd == 'spawn' then
-        local x, y = params:match("^(%-?[%d.e]*) (%-?[%d.e]*)$")
-        print("x, y...", x, y)
-        assert(x and y)
-        x, y = tonumber(x), tonumber(y)
-        player = Player(x, y, 32, 32, id)
-      end
+    print("receive spawn...")
+    player = receive_spawn()
+    if player then
+      ents:add(player.id, player)
     end
     return
   end
 
-	t = t + dt -- increase t by the dt
+  -- Update player
+  -- Note: this is the only ent that updates on the client (where updating means
+  -- changing some variables). All other ents update entirely based on the server.
+  player:update()
 
+  -- Increase t by the dt
+	t = t + dt
+
+  -- Send player info to server
 	if t > updaterate then
-    local kb = player:getInputs();
-    local dg = string.format("%d %s %f %f", player.id, 'move', kb.x, kb.y)
-		udp:send(dg)
-
-    local dg = string.format("%d %s $", player.id, 'update')
-		udp:send(dg)
+    local move_info = encoder:encode_move(player)
+    print(string.format('Sending move info = %s', move_info))
+    udp:send(move_info)
 
 		t = t - updaterate -- set t for the next round
 	end
@@ -76,16 +68,9 @@ function level:update(dt)
     data, msg = udp:receive()
 
     if data then
-      id, cmd, params = data:match("^(%S*) (%S*) (.*)")
+      ent_id, cmd, params = decoder:decode_data(data)
       if cmd == 'move' then
-        -- TODO: wrap this fucking eyesore
-        local x, y = params:match("^(%-?[%d.e]*) (%-?[%d.e]*)$")
-        if id == player.id then
-          print("move data... ", x, y)
-          player.x, player.y = tonumber(x), tonumber(y)
-        else
-          ents:get_entity(id).x, ents:get_entity(id).y = tonumber(x), tonumber(y)
-        end
+        ents:update_state(ent_id, cmd, params)
       else
         print("unrecognised command:", cmd)
       end
@@ -103,6 +88,25 @@ function level:draw()
   end
 
   ents:draw()
+end
+
+-- ===== Helper functions =====
+function send_spawn()
+  udp:send(encoder:encode_spawn())
+end
+
+function receive_spawn()
+  local data, msg = udp:receive()
+
+  if data then
+    ent_id, cmd, params = decoder:decode_data(data)
+    if cmd == 'spawn' then
+  		local x, y = params.x, params.y
+      print(string.format('Spawning player with id=%d at x=%d, y=%d', ent_id, x, y))
+      assert(x and y)
+      return Player(x, y, 32, 32, ent_id)
+    end
+  end
 end
 
 return level

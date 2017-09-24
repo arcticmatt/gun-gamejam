@@ -23,6 +23,8 @@ function Ent:update(dt)
   -- Do nothing by default
 end
 
--- TODO: tostring
+function Ent:update_state(cmd, params)
+  -- Do nothing by default
+end
 
 return Ent

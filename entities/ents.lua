@@ -26,14 +26,9 @@ function ents:draw()
   end
 end
 
-function ents:update(ent_id, x, y)
-  self.entMap[ent_id]:update(x, y)
-end
-
-function ents:send_info()
-  for _, e in pairs do
-    e:send_info()
-  end
+function ents:update_state(ent_id, cmd, params)
+  assert(self.entMap[ent_id])
+  self.entMap[ent_id]:update_state(cmd, params)
 end
 
 return ents

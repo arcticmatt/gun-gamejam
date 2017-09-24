@@ -1,6 +1,6 @@
 local Class  = require("libs.hump.class")
 local Ent = require("entities.ent")
-vector = require("libs.hump.vector")
+local vector = require("libs.hump.vector")
 
 local Player = Class{
   __includes = Ent -- Player class inherits our Ent class
@@ -14,9 +14,16 @@ function Player:init(x, y, w, h, id)
   self.kb = vector(0, 0)
 end
 
+-- Love function
 function Player:update(dt)
   self:getInputs()
-  -- TODO: send self.kb to server
+end
+
+-- Our function
+function Player:update_state(cmd, params)
+  if cmd == 'move' then
+    self.x, self.y = params.x, params.y
+  end
 end
 
 function Player:draw()
