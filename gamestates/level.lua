@@ -8,7 +8,7 @@ local socket = require("socket")
 
 -- TODO add config changing for this
 -- the address and port of the server
-local address, port = "localhost", 12345
+local address, port = "192.168.0.10", 12345
 
 local updaterate = 0.1 -- how long to wait, in seconds, before requesting an update
 
@@ -27,7 +27,7 @@ function level:enter()
   math.randomseed(os.time())
 
   player = nil
-  send_spawn()
+  send_self_spawn()
 
   -- t is a variable we use to help us with the update rate in love.update.
   t = 0
@@ -40,7 +40,7 @@ function level:update(dt)
   -- Spawn player
   if not player then
     print("receive spawn...")
-    player = receive_spawn()
+    player = receive_self_spawn()
     if player then
       ents:add(player.id, player)
     end
@@ -71,6 +71,12 @@ function level:update(dt)
       ent_id, cmd, params = decoder:decode_data(data)
       if cmd == 'move' then
         ents:update_state(ent_id, cmd, params)
+      elseif cmd =='spawn' then -- a new player joins
+        print('new player joining!')
+        local x, y = params.x, params.y
+        assert(x and y)
+        local new_player = Player(x, y, 32, 32, ent_id)
+        ents:add_new(new_player.id, new_player)
       else
         print("unrecognised command:", cmd)
       end
@@ -91,11 +97,11 @@ function level:draw()
 end
 
 -- ===== Helper functions =====
-function send_spawn()
+function send_self_spawn()
   udp:send(encoder:encode_spawn())
 end
 
-function receive_spawn()
+function receive_self_spawn()
   local data, msg = udp:receive()
 
   if data then
