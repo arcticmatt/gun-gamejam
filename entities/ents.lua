@@ -12,7 +12,11 @@ function ents:add_many(ents)
   end
 end
 
-function ents:get_entity(id)
+function ents:has_ent(id)
+  return self.entMap[id] ~= nil
+end
+
+function ents:get_ent(id)
   return self.entMap[id]
 end
 

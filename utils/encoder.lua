@@ -18,7 +18,17 @@ function encoder:encode_move(player)
   return json.encode({
     ent_id = player.id,
     cmd = "move",
-    params = {x = player.kb.x, y = player.kb.y}
+    params = {x = player.kb.x, y = player.kb.y},
+  })
+end
+
+-- input: an ent
+-- output: request for new ent
+function encoder:encode_new_ent(ent_id)
+  return json.encode({
+    ent_id = 0,
+    cmd = "new_ent",
+    params = {ent_id = ent_id},
   })
 end
 

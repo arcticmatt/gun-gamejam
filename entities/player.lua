@@ -8,8 +8,8 @@ local Player = Class{
 
 local directions = {up="up", down="down", left="left", right="right"}
 
-function Player:init(x, y, w, h, id)
-  Ent.init(self, x, y, w, h, id)
+function Player:init(p)
+  Ent.init(self, p)
   -- All we need is input. Everything else on server
   self.kb = vector(0, 0)
 end
@@ -21,7 +21,7 @@ end
 
 -- Our function
 function Player:update_state(cmd, params)
-  if cmd == 'move' then
+  if cmd == 'at' then
     self.x, self.y = params.x, params.y
   end
 end

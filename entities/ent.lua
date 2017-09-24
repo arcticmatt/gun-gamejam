@@ -3,12 +3,12 @@ local Class = require("libs.hump.class")
 local Ent = Class{}
 
 -- Superclass of all entities
-function Ent:init(x, y, w, h, id)
-  self.x = x
-  self.y = y
-  self.w = w
-  self.h = h
-  self.id = id
+function Ent:init(p)
+  self.x = p.x
+  self.y = p.y
+  self.w = p.w
+  self.h = p.h
+  self.id = p.id
 end
 
 function Ent:getRect()
@@ -16,7 +16,9 @@ function Ent:getRect()
 end
 
 function Ent:draw()
-  -- Do nothing by default
+  -- TODO: this should probably do nothing. subclasses should contain drawing logic
+  -- Draw a rectangle by default
+  love.graphics.rectangle("fill", self:getRect())
 end
 
 function Ent:update(dt)
@@ -24,7 +26,10 @@ function Ent:update(dt)
 end
 
 function Ent:update_state(cmd, params)
-  -- Do nothing by default
+  -- TODO: again, this should be abstract. for now, just want to test with hacky shit
+  if cmd == 'at' then
+    self.x, self.y = params.x, params.y
+  end
 end
 
 return Ent
